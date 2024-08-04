@@ -31,7 +31,7 @@ export default class App extends React.Component {
   postNewTodo = () => {
     axios.post(URL, { name: this.state.todoNameInput })
       .then(res => {
-        this.setState({...this.state,todos:this.state.todos.concat(res.data.data)})
+        this.setState({ ...this.state, todos: this.state.todos.concat(res.data.data) })
         this.resetForm()
       })
       .catch(this.formError)
@@ -40,10 +40,22 @@ export default class App extends React.Component {
     e.preventDefault();
     this.postNewTodo()
   }
+  toggleCompleted = id =>{
+    axios.patch(`${URL}/${id}`)
+    //In Map if todo is not what we want return otherwise replace with patching from server
+    .then(res=>{
+      this.setState({...this.state,todos:this.state.todos.map(td=>{
+        if(td.id!==id) return td
+        return res.data.data
+      })})
+    })
+    .catch(this.formError)
+  }
   componentDidMount() {
     //1- Fetch All todos
     this.fetchAllTodos()
   }
+
   render() {
 
     return (
@@ -53,14 +65,14 @@ export default class App extends React.Component {
         {/* Now Render Data */}
         {
           this.state.todos.map(td => {
-            return <div key={td.id}>{td.name}</div>
+            return <div onClick={()=>this.toggleCompleted(td.id)} key={td.id}>{td.name} {td.completed ? "✔️" : ""}</div>
           })
         }
         <form id='todoForm' onSubmit={this.onSubmit}>
           <input type='text' placeholder='Type todo' value={this.state.todoNameInput} onChange={this.onChange} />
           <input type='submit' />
-          <button>Clear Completed</button>
         </form>
+          <button>Clear Completed</button>
         {/* <TodoList todoList={this.state.todoList} toggleCompletion={this.toggleCompletion} />
         <Form addNewTodo={this.addNewTodo} /> */}
       </>
