@@ -83,3 +83,13 @@ ul, form {
 .todo:hover {
   cursor: pointer;
 }
+p{
+  text-align: left;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+.errorText
+{
+  color: brown;
+}
