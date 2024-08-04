@@ -11,9 +11,8 @@ export default class App extends React.Component {
     errorMessage: "",
     todoNameInput: ""
   }
-  errorMessage=()=>{
-    this.setState
-  }
+  resetForm = () => this.setState({ ...this.state, todoNameInput: "" })
+  formError = (err) => this.setState({ ...this.state, errorMessage: err.response.data.message })
   //2- Helper Function to fetch (Use Debugger)
   fetchAllTodos = () => {
     axios.get(URL)
@@ -21,12 +20,9 @@ export default class App extends React.Component {
         //3- now change state and build the brand new one
         this.setState({ ...this.state, todos: res.data.data })
       })
-      .catch(err => {
-        this.setState({ ...this.state, errorMessage: err.response.data.message })
-      })
+      .catch(this.formError)
   }
   //Change Function
-
   onChange = e => {
     const { value } = e.target //Always Extraxct the Value
     this.setState({ ...this.state, todoNameInput: value })
@@ -35,12 +31,10 @@ export default class App extends React.Component {
   postNewTodo = () => {
     axios.post(URL, { name: this.state.todoNameInput })
       .then(res => {
-        this.fetchAllTodos()
-        this.setState({...this.state,todoNameInput:""})
+        this.setState({...this.state,todos:this.state.todos.concat(res.data.data)})
+        this.resetForm()
       })
-      .catch(err => {
-        this.setState()
-      })
+      .catch(this.formError)
   }
   onSubmit = e => {
     e.preventDefault();
@@ -62,8 +56,6 @@ export default class App extends React.Component {
             return <div key={td.id}>{td.name}</div>
           })
         }
-
-
         <form id='todoForm' onSubmit={this.onSubmit}>
           <input type='text' placeholder='Type todo' value={this.state.todoNameInput} onChange={this.onChange} />
           <input type='submit' />
