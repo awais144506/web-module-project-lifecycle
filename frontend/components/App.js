@@ -9,7 +9,8 @@ export default class App extends React.Component {
   state = {
     todos: [],
     errorMessage: "",
-    todoNameInput: ""
+    todoNameInput: "",
+    displayCompleted: true
   }
   resetForm = () => this.setState({ ...this.state, todoNameInput: "" })
   formError = (err) => this.setState({ ...this.state, errorMessage: err.response.data.message })
@@ -40,16 +41,21 @@ export default class App extends React.Component {
     e.preventDefault();
     this.postNewTodo()
   }
-  toggleCompleted = id =>{
+  toggleCompleted = id => {
     axios.patch(`${URL}/${id}`)
-    //In Map if todo is not what we want return otherwise replace with patching from server
-    .then(res=>{
-      this.setState({...this.state,todos:this.state.todos.map(td=>{
-        if(td.id!==id) return td
-        return res.data.data
-      })})
-    })
-    .catch(this.formError)
+      //In Map if todo is not what we want return otherwise replace with patching from server
+      .then(res => {
+        this.setState({
+          ...this.state, todos: this.state.todos.map(td => {
+            if (td.id !== id) return td
+            return res.data.data
+          })
+        })
+      })
+      .catch(this.formError)
+  }
+  toggleDisplayCompleted = () => {
+    this.setState({ ...this.state, displayCompleted: !this.state.displayCompleted })
   }
   componentDidMount() {
     //1- Fetch All todos
@@ -61,20 +67,19 @@ export default class App extends React.Component {
     return (
       <>
         <h2 id='error'>{this.state.errorMessage}</h2>
-        <h2>Todos:</h2>
-        {/* Now Render Data */}
-        {
-          this.state.todos.map(td => {
-            return <div onClick={()=>this.toggleCompleted(td.id)} key={td.id}>{td.name} {td.completed ? "✔️" : ""}</div>
-          })
-        }
-        <form id='todoForm' onSubmit={this.onSubmit}>
-          <input type='text' placeholder='Type todo' value={this.state.todoNameInput} onChange={this.onChange} />
-          <input type='submit' />
-        </form>
-          <button>Clear Completed</button>
-        {/* <TodoList todoList={this.state.todoList} toggleCompletion={this.toggleCompletion} />
-        <Form addNewTodo={this.addNewTodo} /> */}
+        <TodoList 
+        todos={this.state.todos}
+        displayCompleted={this.state.displayCompleted}
+        toggleCompleted={this.toggleCompleted}
+        />
+        <Form 
+          onSubmit={this.onSubmit}
+          onChange={this.onChange}
+          toggleDisplayCompleted={this.toggleDisplayCompleted}
+          todoNameInput={this.state.todoNameInput}
+          displayCompleted={this.state.displayCompleted}
+        />
+
       </>
     )
   }
